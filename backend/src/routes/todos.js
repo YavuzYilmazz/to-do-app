@@ -1,6 +1,7 @@
 const express = require('express');
 const { protect } = require('../middlewares/authMiddleware');
 const { check } = require('express-validator');
+const { upload } = require('../middlewares/uploadMiddleware');
 const { validateRequest } = require('../middlewares/validateRequest');
 const { addTodo, getTodos, updateTodo, deleteTodo } = require('../controllers/todoController');
 
@@ -31,5 +32,15 @@ router.put(
 
 router.get('/', protect, getTodos);
 router.delete('/:id', protect, deleteTodo);
+
+router.post(
+    '/',
+    protect,
+    upload.fields([
+      { name: 'thumbnail', maxCount: 1 },
+      { name: 'attachments', maxCount: 5 },
+    ]),
+    addTodo
+  );
 
 module.exports = router;
