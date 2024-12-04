@@ -151,8 +151,8 @@ const Todos = () => {
         loading={loading}
       />
       <Modal
-        title={editingTodo ? 'Edit To-Do' : 'Add To-Do'}
-        visible={isModalOpen}
+        title={editingTodo ? "Edit To-Do" : "Add To-Do"}
+        open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
         className="todo-modal"
@@ -161,7 +161,7 @@ const Todos = () => {
           <Form.Item
             name="title"
             label="Title"
-            rules={[{ required: true, message: 'Please enter the title' }]}
+            rules={[{ required: true, message: "Please enter the title" }]}
           >
             <Input placeholder="Enter title" />
           </Form.Item>
@@ -173,6 +173,10 @@ const Todos = () => {
               maxCount={1}
               beforeUpload={() => false}
               listType="picture"
+              fileList={form.getFieldValue("thumbnail") || []}
+              onChange={({ fileList }) =>
+                form.setFieldsValue({ thumbnail: fileList })
+              }
             >
               <Button icon={<UploadOutlined />}>Upload Thumbnail</Button>
             </Upload>
@@ -182,13 +186,17 @@ const Todos = () => {
               multiple
               beforeUpload={() => false}
               listType="text"
+              fileList={form.getFieldValue("attachments") || []}
+              onChange={({ fileList }) =>
+                form.setFieldsValue({ attachments: fileList })
+              }
             >
               <Button icon={<UploadOutlined />}>Upload Attachments</Button>
             </Upload>
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" block>
-              {editingTodo ? 'Update' : 'Add'}
+              {editingTodo ? "Update" : "Add"}
             </Button>
           </Form.Item>
         </Form>
