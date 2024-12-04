@@ -82,27 +82,34 @@ const Todos = () => {
       form.setFieldsValue({
         title: todo.title,
         description: todo.description,
-        thumbnail: todo.thumbnail
+      });
+        setThumbnailFileList(
+        todo.thumbnail
           ? [
               {
+                uid: '-1',
                 name: todo.thumbnail,
-                status: "done",
+                status: 'done',
                 url: `http://localhost:${process.env.REACT_APP_BACKEND_PORT}/uploads/${todo.thumbnail}`,
               },
             ]
-          : [],
-        attachments: todo.attachments
-          ? todo.attachments.map((file) => ({
+          : []
+      );
+      setAttachmentsFileList(
+        todo.attachments
+          ? todo.attachments.map((file, index) => ({
+              uid: `-${index + 1}`,
               name: file,
-              status: "done",
+              status: 'done',
               url: `http://localhost:${process.env.REACT_APP_BACKEND_PORT}/uploads/${file}`,
             }))
-          : [],
-      });
+          : []);
     } else {
       form.resetFields();
+      setThumbnailFileList([]);
+      setAttachmentsFileList([]);
     }
-  };
+  };  
 
   useEffect(() => {
     fetchTodos();
@@ -118,21 +125,6 @@ const Todos = () => {
       title: "Description",
       dataIndex: "description",
       key: "description",
-    },
-    {
-      title: "Thumbnail",
-      dataIndex: "thumbnail",
-      key: "thumbnail",
-      render: (text) =>
-        text ? (
-          <img
-            src={`http://localhost:${process.env.REACT_APP_BACKEND_PORT}/uploads/${text}`}
-            alt="Thumbnail"
-            className="todo-thumbnail"
-          />
-        ) : (
-          "No Thumbnail"
-        ),
     },
     {
       title: "Actions",
