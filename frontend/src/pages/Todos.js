@@ -14,10 +14,10 @@ const Todos = () => {
   const fetchTodos = async () => {
     setLoading(true);
     try {
-      const response = await API.get('/todos');
+      const response = await API.get("/todos");
       setTodos(response.data.todos);
     } catch (error) {
-      message.error('Failed to load todos');
+      message.error("Failed to load todos");
     } finally {
       setLoading(false);
     }
@@ -25,47 +25,50 @@ const Todos = () => {
 
   const handleSave = async (values) => {
     const formData = new FormData();
-    formData.append('title', values.title);
-    formData.append('description', values.description || '');
+    formData.append("title", values.title);
+    formData.append("description", values.description || "");
 
-    if (values.thumbnail && values.thumbnail.file) {
-      formData.append('thumbnail', values.thumbnail.file.originFileObj);
+    const thumbnail = form.getFieldValue("thumbnail");
+    if (thumbnail && thumbnail.length > 0) {
+      formData.append("thumbnail", thumbnail[0].originFileObj);
     }
 
-    if (values.attachments && values.attachments.fileList) {
-      values.attachments.fileList.forEach((file) => {
-        formData.append('attachments', file.originFileObj);
+    const attachments = form.getFieldValue("attachments");
+    if (attachments && attachments.length > 0) {
+      attachments.forEach((file) => {
+        formData.append("attachments", file.originFileObj);
       });
     }
 
     try {
       if (editingTodo) {
         await API.put(`/todos/${editingTodo._id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        message.success('To-Do updated successfully');
+        message.success("To-Do updated successfully");
       } else {
-        await API.post('/todos', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
+        await API.post("/todos", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        message.success('To-Do added successfully');
+        message.success("To-Do added successfully");
       }
       form.resetFields();
       setIsModalOpen(false);
       setEditingTodo(null);
       fetchTodos();
     } catch (error) {
-      message.error('Failed to save To-Do');
+      console.error(error);
+      message.error("Failed to save To-Do");
     }
   };
 
   const handleDelete = async (id) => {
     try {
       await API.delete(`/todos/${id}`);
-      message.success('To-Do deleted successfully');
+      message.success("To-Do deleted successfully");
       fetchTodos();
     } catch (error) {
-      message.error('Failed to delete To-Do');
+      message.error("Failed to delete To-Do");
     }
   };
 
@@ -76,6 +79,22 @@ const Todos = () => {
       form.setFieldsValue({
         title: todo.title,
         description: todo.description,
+        thumbnail: todo.thumbnail
+          ? [
+              {
+                name: todo.thumbnail,
+                status: "done",
+                url: `http://localhost:${process.env.REACT_APP_BACKEND_PORT}/uploads/${todo.thumbnail}`,
+              },
+            ]
+          : [],
+        attachments: todo.attachments
+          ? todo.attachments.map((file) => ({
+              name: file,
+              status: "done",
+              url: `http://localhost:${process.env.REACT_APP_BACKEND_PORT}/uploads/${file}`,
+            }))
+          : [],
       });
     } else {
       form.resetFields();
@@ -88,33 +107,33 @@ const Todos = () => {
 
   const columns = [
     {
-      title: 'Title',
-      dataIndex: 'title',
-      key: 'title',
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
     },
     {
-      title: 'Description',
-      dataIndex: 'description',
-      key: 'description',
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
     },
     {
-      title: 'Thumbnail',
-      dataIndex: 'thumbnail',
-      key: 'thumbnail',
+      title: "Thumbnail",
+      dataIndex: "thumbnail",
+      key: "thumbnail",
       render: (text) =>
         text ? (
           <img
-            src={`http://localhost:5001/uploads/${text}`}
+            src={`http://localhost:${process.env.REACT_APP_BACKEND_PORT}/uploads/${text}`}
             alt="Thumbnail"
             className="todo-thumbnail"
           />
         ) : (
-          'No Thumbnail'
+          "No Thumbnail"
         ),
     },
     {
-      title: 'Actions',
-      key: 'actions',
+      title: "Actions",
+      key: "actions",
       render: (_, record) => (
         <div>
           <Button type="link" onClick={() => openModal(record)}>
@@ -155,9 +174,16 @@ const Todos = () => {
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         footer={null}
-        className="todo-modal"
       >
-        <Form form={form} layout="vertical" onFinish={handleSave}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleSave}
+          initialValues={{
+            thumbnail: [],
+            attachments: [],
+          }}
+        >
           <Form.Item
             name="title"
             label="Title"
@@ -174,9 +200,9 @@ const Todos = () => {
               beforeUpload={() => false}
               listType="picture"
               fileList={form.getFieldValue("thumbnail") || []}
-              onChange={({ fileList }) =>
-                form.setFieldsValue({ thumbnail: fileList })
-              }
+              onChange={({ fileList }) => {
+                form.setFieldsValue({ thumbnail: fileList });
+              }}
             >
               <Button icon={<UploadOutlined />}>Upload Thumbnail</Button>
             </Upload>
@@ -187,9 +213,9 @@ const Todos = () => {
               beforeUpload={() => false}
               listType="text"
               fileList={form.getFieldValue("attachments") || []}
-              onChange={({ fileList }) =>
-                form.setFieldsValue({ attachments: fileList })
-              }
+              onChange={({ fileList }) => {
+                form.setFieldsValue({ attachments: fileList });
+              }}
             >
               <Button icon={<UploadOutlined />}>Upload Attachments</Button>
             </Upload>
