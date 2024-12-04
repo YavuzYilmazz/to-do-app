@@ -1,29 +1,27 @@
 const Todo = require('../models/Todo');
 
 const addTodo = async (req, res) => {
-    const { title, description, tags } = req.body;
-  
     try {
-      const thumbnail = req.files?.thumbnail ? req.files.thumbnail[0].path : null;
-      const attachments = req.files?.attachments
-        ? req.files.attachments.map((file) => file.path)
-        : [];
+      const thumbnail = req.files?.thumbnail?.[0]?.filename || null;
+      const attachments = req.files?.attachments?.map((file) => file.filename) || [];
   
-      const todo = await Todo.create({
+      const newTodo = new Todo({
         userId: req.user.id,
-        title,
-        description,
-        tags,
+        title: req.body.title,
+        description: req.body.description,
+        tags: req.body.tags ? JSON.parse(req.body.tags) : [],
         thumbnail,
         attachments,
       });
   
-      res.status(201).json(todo);
+      const savedTodo = await newTodo.save();
+      res.status(201).json({ success: true, todo: savedTodo });
     } catch (error) {
-      res.status(500).json({ message: 'Server Error', error: error.message });
+      console.error(error);
+      res.status(500).json({ success: false, message: 'Failed to add To-Do' });
     }
   };
-  
+
 
   const getTodos = async (req, res) => {
     const { search, page = 1, limit = 10 } = req.query;
