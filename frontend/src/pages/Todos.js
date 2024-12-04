@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Button, Modal, Form, Input, message, Popconfirm, Upload } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { UploadOutlined, SearchOutlined } from '@ant-design/icons';
 import API from '../services/api';
 import '../styles/Todos.css';
 
@@ -12,18 +12,24 @@ const Todos = () => {
   const [editingTodo, setEditingTodo] = useState(null);
   const [thumbnailFileList, setThumbnailFileList] = useState([]);
   const [attachmentsFileList, setAttachmentsFileList] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
-
-  const fetchTodos = async () => {
+  const fetchTodos = async (query = '') => {
     setLoading(true);
     try {
-      const response = await API.get("/todos");
+      const response = await API.get(`/todos?search=${query}`);
       setTodos(response.data.todos);
     } catch (error) {
       message.error("Failed to load todos");
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSearch = (e) => {
+    const query = e.target.value;
+    setSearchTerm(query);
+    fetchTodos(query);
   };
 
   const handleSave = async (values) => {
@@ -69,7 +75,7 @@ const Todos = () => {
     try {
       await API.delete(`/todos/${id}`);
       message.success("To-Do deleted successfully");
-      fetchTodos();
+      fetchTodos(searchTerm);
     } catch (error) {
       message.error("Failed to delete To-Do");
     }
@@ -83,7 +89,7 @@ const Todos = () => {
         title: todo.title,
         description: todo.description,
       });
-        setThumbnailFileList(
+      setThumbnailFileList(
         todo.thumbnail
           ? [
               {
@@ -151,6 +157,13 @@ const Todos = () => {
 
   return (
     <div className="todo-container">
+      <Input
+        placeholder="Search To-Dos"
+        prefix={<SearchOutlined />}
+        value={searchTerm}
+        onChange={handleSearch}
+        className="search-input"
+      />
       <Button
         type="primary"
         onClick={() => openModal()}
