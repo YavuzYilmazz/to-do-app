@@ -15,10 +15,6 @@ const todoSchema = new mongoose.Schema(
       type: String,
       required: false,
     },
-    tags: {
-      type: [String],
-      default: [],
-    },
     thumbnail: {
       type: String,
       required: false,
@@ -26,10 +22,6 @@ const todoSchema = new mongoose.Schema(
     attachments: {
       type: [String],
       default: [],
-    },
-    completed: {
-      type: Boolean,
-      default: false,
     },
   },
   { timestamps: true },
