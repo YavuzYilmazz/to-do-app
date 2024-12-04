@@ -118,6 +118,28 @@ frontend/
 
 ---
 
+
+## Example User Creation Request
+
+To register a new user, send a POST request to the following endpoint:
+
+### Endpoint:
+```
+POST http://localhost:5001/auth/register
+```
+
+### Request Body:
+```json
+{
+  "username": "testuser",
+  "email": "test@example.com",
+  "password": "123456"
+}
+```
+
+You can use tools like Postman or curl to make this request.
+
+
 ## How to Use
 
 1. Open the application in your browser: `http://localhost:3000`.
@@ -151,7 +173,3 @@ frontend/
 | `npm run build` | Build for production         |
 
 ---
-
-## License
-
-This project is licensed under the MIT License.
