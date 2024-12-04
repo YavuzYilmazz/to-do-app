@@ -8,16 +8,20 @@ const { addTodo, getTodos, updateTodo, deleteTodo } = require('../controllers/to
 const router = express.Router();
 
 router.post(
-  '/',
-  protect,
-  [
-    check('title', 'Title is required').notEmpty(),
-    check('description', 'Description must be at least 10 characters').optional().isLength({ min: 10 }),
-    check('tags', 'Tags must be an array of strings').optional().isArray(),
-  ],
-  validateRequest,
-  addTodo
-);
+    '/',
+    protect,
+    upload.fields([
+      { name: 'thumbnail', maxCount: 1 },
+      { name: 'attachments', maxCount: 5 },
+    ]),
+    [
+      check('title', 'Title is required').notEmpty(),
+      check('description', 'Description must be at least 10 characters').optional().isLength({ min: 10 }),
+      check('tags', 'Tags must be an array of strings').optional().isArray(),
+    ],
+    validateRequest,
+    addTodo
+  );  
 
 router.put(
   '/:id',
@@ -33,14 +37,5 @@ router.put(
 router.get('/', protect, getTodos);
 router.delete('/:id', protect, deleteTodo);
 
-router.post(
-    '/',
-    protect,
-    upload.fields([
-      { name: 'thumbnail', maxCount: 1 },
-      { name: 'attachments', maxCount: 5 },
-    ]),
-    addTodo
-  );
 
 module.exports = router;
