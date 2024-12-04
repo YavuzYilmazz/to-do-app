@@ -10,6 +10,9 @@ const Todos = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [editingTodo, setEditingTodo] = useState(null);
+  const [thumbnailFileList, setThumbnailFileList] = useState([]);
+  const [attachmentsFileList, setAttachmentsFileList] = useState([]);
+
 
   const fetchTodos = async () => {
     setLoading(true);
@@ -35,9 +38,9 @@ const Todos = () => {
 
     const attachments = form.getFieldValue("attachments");
     if (attachments && attachments.length > 0) {
-      attachments.forEach((file) => {
-        formData.append("attachments", file.originFileObj);
-      });
+        for(let i=0;i<attachments.length;i++){
+            formData.append("attachments", attachments[i].originFileObj);
+        }
     }
 
     try {
@@ -199,8 +202,9 @@ const Todos = () => {
               maxCount={1}
               beforeUpload={() => false}
               listType="picture"
-              fileList={form.getFieldValue("thumbnail") || []}
+              fileList={thumbnailFileList}
               onChange={({ fileList }) => {
+                setThumbnailFileList(fileList);
                 form.setFieldsValue({ thumbnail: fileList });
               }}
             >
@@ -212,8 +216,9 @@ const Todos = () => {
               multiple
               beforeUpload={() => false}
               listType="text"
-              fileList={form.getFieldValue("attachments") || []}
+              fileList={attachmentsFileList}
               onChange={({ fileList }) => {
+                setAttachmentsFileList(fileList);
                 form.setFieldsValue({ attachments: fileList });
               }}
             >
