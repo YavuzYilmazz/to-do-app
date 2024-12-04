@@ -5,10 +5,10 @@ require('dotenv').config();
 
 const generateToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: '30d',
+    expiresIn: '30d', // 30 days
   });
 };
-console.log('JWT Secret:', process.env.JWT_SECRET);
+
 const registerUser = async (req, res) => {
   const { username, email, password } = req.body;
 
